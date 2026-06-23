@@ -11,9 +11,9 @@ __pycache__/
 .pytest_cache/
 
 # Databases
-db/*.db
+db/*.db*
 db/*.sqlite
-*.db
+*.db*
 
 # Logs
 logs/
