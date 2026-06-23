@@ -1,0 +1,30 @@
+# Environment Secrets
+.env
+.env.local
+.env.*.local
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Databases
+db/*.db
+db/*.sqlite
+*.db
+
+# Logs
+logs/
+*.log
+
+# Reports
+reports/*.docx
+reports/*.xlsx
+reports/*.pdf
+reports/
+
+# IDE Configuration
+.vscode/
+.idea/

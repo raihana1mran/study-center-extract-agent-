@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>NIOS Agent Analytics - System Dashboard</title>
+    <!-- Tailwind CSS with Forms and Container Queries plugins -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet">
+    <!-- Google Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    <!-- FontAwesome (required for app.js dynamic icons and actions) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "surface-container-low": "#f2f4f6",
+                        "outline": "#737686",
+                        "surface-container": "#eceef0",
+                        "background": "#f7f9fb",
+                        "error": "#ba1a1a",
+                        "tertiary-container": "#656d84",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "surface-bright": "#f7f9fb",
+                        "primary": "#004ac6",
+                        "inverse-surface": "#2d3133",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-variant": "#e0e3e5",
+                        "primary-container": "#2563eb",
+                        "tertiary-fixed": "#dae2fd",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "on-secondary-fixed": "#0b1c30",
+                        "on-secondary-container": "#54647a",
+                        "surface": "#f7f9fb",
+                        "secondary-container": "#d0e1fb",
+                        "on-secondary": "#ffffff",
+                        "secondary": "#505f76",
+                        "surface-tint": "#0053db",
+                        "surface-container-high": "#e6e8ea",
+                        "surface-dim": "#d8dadc",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-primary-fixed": "#00174b",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#191c1e",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-surface-variant": "#434655",
+                        "outline-variant": "#c3c6d7",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "on-surface": "#191c1e",
+                        "on-primary-container": "#eeefff",
+                        "inverse-primary": "#b4c5ff",
+                        "secondary-fixed": "#d3e4fe",
+                        "on-tertiary-fixed": "#131b2e",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#4d556b",
+                        "on-error": "#ffffff",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-tertiary-container": "#eef0ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "gutter": "24px",
+                        "xl": "40px",
+                        "container-max": "1280px",
+                        "lg": "24px",
+                        "sm": "8px",
+                        "base": "4px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-xl": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "mono-code": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-xl": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "mono-code": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            min-height: max(884px, 100dvh);
+        }
+        .console-recessed {
+            background-color: #f1f5f9;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+        }
+        .card-elevation-1 {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+        }
+        #mobile-drawer-overlay {
+            transition: opacity 0.3s ease-in-out;
+            visibility: hidden;
+            opacity: 0;
+        }
+        #mobile-drawer-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        #navigation-drawer {
+            transition: transform 0.3s ease-in-out;
+        }
+        @media (max-width: 1023px) {
+            #navigation-drawer {
+                transform: translateX(-100%);
+            }
+            #navigation-drawer.active {
+                transform: translateX(0);
+            }
+        }
+        
+        /* Navigation SPA Active Styling (Preserves app.js active class updates) */
+        .nav-item.active {
+            background-color: #d0e1fb; /* secondary-container */
+            color: #0b1c30; /* on-secondary-container */
+            font-weight: 700;
+        }
+        .nav-item.active .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Pagination Button Styling */
+        .btn-pag-num {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            border: 1px solid #e2e8f0;
+            font-weight: 500;
+            transition: all 0.2s;
+            background-color: white;
+            color: #191c1e;
+        }
+        .btn-pag-num.active {
+            background-color: #004ac6; /* primary */
+            color: white;
+            border-color: #004ac6;
+        }
+        .btn-pag-num:hover:not(.active) {
+            background-color: #eceef0;
+        }
+        
+        /* Status Badge Styling */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge-success {
+            background-color: rgba(37, 99, 235, 0.1);
+            color: #004ac6;
+        }
+        .badge-warning {
+            background-color: rgba(234, 179, 8, 0.1);
+            color: #ca8a04;
+        }
+        .badge-danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+        
+        /* Details Modal custom internal elements styling (rendered dynamically by app.js) */
+        .modal-info-group {
+            margin-bottom: 12px;
+        }
+        .modal-info-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #505f76;
+            margin-bottom: 2px;
+        }
+        .modal-info-val {
+            font-size: 15px;
+            color: #191c1e;
+        }
+        .validation-warning-box {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background-color: rgba(186, 26, 26, 0.05);
+            border: 1px solid rgba(186, 26, 26, 0.2);
+            border-radius: 8px;
+            color: #ba1a1a;
+            font-size: 13px;
+            margin-top: 16px;
+        }
+        .validation-warning-box i {
+            font-size: 20px;
+        }
+        
+        /* Backdrop hiding (overwrites hidden class to keep flex overlay layout) */
+        .modal-backdrop {
+            display: flex;
+        }
+        .modal-backdrop.hidden {
+            display: none !important;
+        }
+
+        /* Mobile bottom nav active styling */
+        @media (max-width: 1023px) {
+            nav.lg\:hidden a.nav-item.active {
+                background-color: #2563eb !important; /* primary */
+                color: #ffffff !important;
+                border-radius: 1rem;
+                padding-left: 1.25rem;
+                padding-right: 1.25rem;
+                padding-top: 0.375rem;
+                padding-bottom: 0.375rem;
+                transform: scale(0.95);
+            }
+            nav.lg\:hidden a.nav-item.active .material-symbols-outlined {
+                font-variation-settings: 'FILL' 1;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface overflow-x-hidden">
+
+    <!-- Mobile Drawer Overlay -->
+    <div class="fixed inset-0 bg-black/50 z-40 lg:hidden" id="mobile-drawer-overlay" onclick="toggleDrawer()"></div>
+
+    <!-- Navigation Drawer -->
+    <aside class="fixed left-0 top-0 h-screen w-80 bg-surface border-r border-outline-variant shadow-md flex flex-col z-50 lg:z-30 lg:translate-x-0" id="navigation-drawer">
+        <!-- Drawer Header -->
+        <div class="h-16 flex items-center px-lg border-b border-outline-variant shrink-0">
+            <div class="flex items-center gap-md">
+                <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined">smart_toy</span>
+                </div>
+                <div>
+                    <h2 class="font-headline-md text-[18px] font-bold text-primary leading-tight">NIOS Agent</h2>
+                    <p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">System Analytics</p>
+                </div>
+            </div>
+            <button class="lg:hidden ml-auto p-2 hover:bg-surface-container rounded-full" onclick="toggleDrawer()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        
+        <!-- User Profile Area -->
+        <div class="px-lg py-lg border-b border-outline-variant">
+            <div class="flex items-center gap-md mb-md">
+                <div class="w-12 h-12 rounded-xl bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-headline-md">A1</div>
+                <div>
+                    <p class="font-label-md text-label-md font-bold text-on-surface">Agent Alpha-01</p>
+                    <p class="text-body-sm text-on-surface-variant">Authorized Personnel</p>
+                </div>
+            </div>
+            <div class="bg-secondary-container/30 px-md py-sm rounded-lg flex justify-between items-center border border-secondary-container">
+                <span class="font-label-md text-on-secondary-fixed-variant" id="system-status-text">System Idle</span>
+                <span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;" id="system-status-icon">check_circle</span>
+            </div>
+        </div>
+        
+        <!-- Navigation List -->
+        <nav class="flex-1 px-base py-md space-y-1 overflow-y-auto">
+            <a href="#dashboard" class="nav-item mx-2 rounded-full flex items-center gap-md px-md py-sm cursor-pointer transition-all text-on-surface-variant hover:bg-surface-container-high active" id="nav-dashboard">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span class="font-label-md">Dashboard</span>
+            </a>
+            <a href="#browser" class="nav-item mx-2 rounded-full flex items-center gap-md px-md py-sm cursor-pointer transition-all text-on-surface-variant hover:bg-surface-container-high" id="nav-browser">
+                <span class="material-symbols-outlined">database</span>
+                <span class="font-label-md">Browse Data</span>
+            </a>
+            <a href="#control" class="nav-item mx-2 rounded-full flex items-center gap-md px-md py-sm cursor-pointer transition-all text-on-surface-variant hover:bg-surface-container-high" id="nav-control">
+                <span class="material-symbols-outlined">settings_input_component</span>
+                <span class="font-label-md">Control Panel</span>
+            </a>
+            <a href="#reports" class="nav-item mx-2 rounded-full flex items-center gap-md px-md py-sm cursor-pointer transition-all text-on-surface-variant hover:bg-surface-container-high" id="nav-reports">
+                <span class="material-symbols-outlined">assessment</span>
+                <span class="font-label-md">Reports</span>
+            </a>
+        </nav>
+        
+        <!-- Drawer Footer -->
+        <div class="p-lg border-t border-outline-variant bg-surface-container-lowest">
+            <div class="flex items-center gap-sm bg-surface-container-low px-md py-xs rounded-full border border-outline-variant justify-center">
+                <div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                <span class="font-label-md text-[12px] text-on-surface-variant">NODE: ACTIVE</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Top App Bar -->
+    <header class="w-full top-0 sticky z-40 bg-surface border-b border-outline-variant shadow-sm flex justify-between items-center px-lg h-16 lg:pl-[344px]">
+        <div class="flex items-center gap-md">
+            <span class="material-symbols-outlined text-primary cursor-pointer active:opacity-70 lg:hidden" onclick="toggleDrawer()">menu</span>
+            <h1 class="font-headline-md text-headline-md font-bold text-primary" id="page-title">System Dashboard</h1>
+        </div>
+        <div class="flex items-center gap-md">
+            <div class="hidden md:flex items-center gap-sm bg-surface-container-low px-md py-xs rounded-full border border-outline-variant">
+                <div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                <span class="font-label-md text-label-md text-on-surface-variant" id="page-subtitle">AGENT ACTIVE</span>
+            </div>
+            
+            <!-- Live Progress Badge -->
+            <div class="live-badge-container hidden flex items-center gap-xs bg-error-container text-on-error-container px-md py-1 rounded-full text-xs font-bold border border-error/20" id="running-badge">
+                <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+                <span class="live-text text-[11px]">Scrape In Progress</span>
+            </div>
+            
+            <button class="bg-primary hover:bg-primary/95 text-white font-bold px-md py-2 rounded-lg transition-all flex items-center gap-xs text-[13px]" id="btn-quick-scrape" onclick="window.location.hash = '#control'">
+                <span class="material-symbols-outlined text-[18px]">play_arrow</span> Run Scraper
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="lg:ml-80 min-h-screen p-md md:p-lg pb-24 md:pb-lg transition-all duration-300">
+        <div class="max-w-container-max mx-auto space-y-lg">
+            
+            <!-- Notification Banner -->
+            <div id="status-banner" class="hidden bg-primary-fixed text-on-primary-fixed px-lg py-md rounded-xl flex justify-between items-center border border-outline-variant/30 my-md shadow-sm">
+                <div class="flex items-center gap-md">
+                    <span class="material-symbols-outlined text-primary">info</span>
+                    <span id="status-banner-text" class="font-label-md text-[14px]">A background job is currently running.</span>
+                </div>
+                <button class="text-on-surface-variant hover:text-on-surface rounded-full p-1" onclick="document.getElementById('status-banner').classList.add('hidden')">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <!-- VIEW 1: DASHBOARD -->
+            <section id="view-dashboard" class="view-section space-y-lg">
+                <!-- Hero Row: Stats & Last Run -->
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-lg">
+                    <!-- Metrics Grid (2x2) -->
+                    <div class="xl:col-span-2 grid grid-cols-2 gap-md md:gap-lg">
+                        <!-- States Covered -->
+                        <div class="card-elevation-1 rounded-xl p-lg flex flex-col justify-between hover:border-primary/30 transition-colors" style="transform: translateY(0px); transition: transform 0.2s ease-out;">
+                            <div class="flex justify-between items-start">
+                                <span class="font-label-md text-on-surface-variant">STATES COVERED</span>
+                                <span class="material-symbols-outlined text-primary-container bg-primary-container/10 p-2 rounded-lg">map</span>
+                            </div>
+                            <div class="mt-xl">
+                                <h2 class="font-headline-xl text-headline-xl text-on-surface" id="stat-total-states">0</h2>
+                                <p class="text-body-sm text-on-surface-variant mt-1">Across Indian Territory</p>
+                            </div>
+                        </div>
+                        <!-- Districts -->
+                        <div class="card-elevation-1 rounded-xl p-lg flex flex-col justify-between hover:border-primary/30 transition-colors" style="transform: translateY(0px); transition: transform 0.2s ease-out;">
+                            <div class="flex justify-between items-start">
+                                <span class="font-label-md text-on-surface-variant">DISTRICTS</span>
+                                <span class="material-symbols-outlined text-primary-container bg-primary-container/10 p-2 rounded-lg">location_on</span>
+                            </div>
+                            <div class="mt-xl">
+                                <h2 class="font-headline-xl text-headline-xl text-on-surface" id="stat-total-districts">0</h2>
+                                <p class="text-body-sm text-on-surface-variant mt-1">Administrative Zones</p>
+                            </div>
+                        </div>
+                        <!-- Scrape Runs -->
+                        <div class="card-elevation-1 rounded-xl p-lg flex flex-col justify-between hover:border-primary/30 transition-colors" style="transform: translateY(0px); transition: transform 0.2s ease-out;">
+                            <div class="flex justify-between items-start">
+                                <span class="font-label-md text-on-surface-variant">SCRAPE RUNS</span>
+                                <span class="material-symbols-outlined text-primary-container bg-primary-container/10 p-2 rounded-lg">rebase</span>
+                            </div>
+                            <div class="mt-xl">
+                                <h2 class="font-headline-xl text-headline-xl text-on-surface" id="stat-total-runs">0</h2>
+                                <p class="text-body-sm text-on-surface-variant mt-1">Last 30 Days</p>
+                            </div>
+                        </div>
+                        <!-- Total Centres -->
+                        <div class="card-elevation-1 rounded-xl p-lg flex flex-col justify-between hover:border-primary/30 transition-colors" style="transform: translateY(0px); transition: transform 0.2s ease-out;">
+                            <div class="flex justify-between items-start">
+                                <span class="font-label-md text-on-surface-variant">CENTRES FOUND</span>
+                                <span class="material-symbols-outlined text-primary-container bg-primary-container/10 p-2 rounded-lg">domain</span>
+                            </div>
+                            <div class="mt-xl">
+                                <h2 class="font-headline-xl text-headline-xl text-on-surface" id="stat-total-centres">0</h2>
+                                <p class="text-body-sm text-on-surface-variant mt-1">Verified NIOS Centres</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Last Run Spotlight Card -->
+                    <div class="card-elevation-1 rounded-xl flex flex-col overflow-hidden">
+                        <div class="bg-primary px-lg py-md flex justify-between items-center">
+                            <h3 class="font-headline-md text-white">Last Scraping Run</h3>
+                            <span class="bg-white/20 text-white text-xs px-2 py-1 rounded font-bold" id="last-run-id">—</span>
+                        </div>
+                        <div class="p-lg flex-1 flex flex-col space-y-lg">
+                            <div class="console-recessed p-md rounded-lg font-mono-code text-mono-code space-y-sm">
+                                <div class="flex justify-between border-b border-outline-variant/30 pb-sm">
+                                    <span class="text-on-surface-variant">STATUS</span>
+                                    <span class="badge" id="last-run-status">—</span>
+                                </div>
+                                <div class="flex justify-between pt-sm">
+                                    <span class="text-on-surface-variant">FOUND</span>
+                                    <span class="text-on-surface" id="last-run-centres">—</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-on-surface-variant">COMPLETED AT</span>
+                                    <span class="text-on-surface text-[12px]" id="last-run-time">—</span>
+                                </div>
+                            </div>
+                            <div class="flex-1 relative min-h-[160px] rounded-lg overflow-hidden border border-outline-variant">
+                                <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAdgugiHtatTMfoVGmc3OdVr-BFfpVs_23tp-fuQ88OsGH_cv91_pguzZlT3JYg6rLT1v5c_f6yopYfnj6-6cHamqT6oCKKd8bIAvZDHiJzm6BfBhKeChkgSi6KQfN9XSx3ycNEWpPdv2CiQZ6AP5Xx_GOwFN9fWSI-ed8mHvELJIMhZkcWHZKcyj85Z2GCfxLHpaxtZfzR_E7cxHxci8AH6T1TopjJ5APP5jnZEoq79MsOYB1DRcvGLPXSEs36gPc_rqXLBHQVtyo')"></div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                                <div class="absolute bottom-md left-md">
+                                    <p class="text-white font-bold text-body-md">Real-time Coverage</p>
+                                    <p class="text-white/80 text-body-sm">Visualizing NIOS Nodes</p>
+                                </div>
+                            </div>
+                            <button class="w-full py-md bg-primary text-white rounded-lg font-bold hover:bg-primary-container transition-all active:scale-[0.98] flex items-center justify-center gap-sm" onclick="window.location.hash = '#reports'">
+                                <span class="material-symbols-outlined text-[18px]">visibility</span> VIEW FULL REPORT
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Analysis Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-lg">
+                    <!-- Highest Density States -->
+                    <div class="card-elevation-1 rounded-xl p-lg flex flex-col justify-between" style="transform: translateY(0px); transition: transform 0.2s ease-out;">
+                        <div>
+                            <div class="flex justify-between items-center mb-lg">
+                                <h3 class="font-headline-md text-on-surface">Highest Density States</h3>
+                                <span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+                            </div>
+                            <div class="space-y-lg" id="highest-density-states-container">
+                                <div class="text-center text-on-surface-variant py-8">Loading state distribution...</div>
+                            </div>
+                        </div>
+                        <div class="mt-xl pt-lg border-t border-outline-variant flex justify-center">
+                            <a class="text-primary font-label-md hover:underline decoration-2 underline-offset-4 flex items-center gap-xs" href="#browser" onclick="document.getElementById('filter-state').value = ''; fetchCentres(1);">
+                                View all states <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Recent Scrape History -->
+                    <div class="card-elevation-1 rounded-xl p-lg flex flex-col">
+                        <div class="flex justify-between items-center mb-lg">
+                            <h3 class="font-headline-md text-on-surface">Recent Scrape History</h3>
+                            <span class="text-body-sm text-on-surface-variant font-bold">Execution Audit Log</span>
+                        </div>
+                        <div class="overflow-x-auto flex-1">
+                            <table class="w-full border-collapse" id="table-recent-runs">
+                                <thead>
+                                    <tr class="text-left border-b border-outline-variant text-on-surface-variant">
+                                        <th class="pb-md font-label-md">RUN ID</th>
+                                        <th class="pb-md font-label-md">STATUS</th>
+                                        <th class="pb-md font-label-md">RESULTS</th>
+                                        <th class="pb-md font-label-md">TIME</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-outline-variant/30 text-[13px]" id="recent-runs-tbody">
+                                    <tr>
+                                        <td colspan="7" class="py-md text-center text-on-surface-variant">Loading run history...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 2: DATA BROWSER -->
+            <section id="view-browser" class="view-section hidden space-y-lg">
+                <div class="card-elevation-1 rounded-xl p-lg space-y-lg">
+                    <!-- Filters Header -->
+                    <div class="flex flex-col xl:flex-row gap-md justify-between items-stretch xl:items-center">
+                        <!-- Search -->
+                        <div class="relative flex-1">
+                            <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+                            <input type="text" id="browser-search" placeholder="Search by AI Code, Name, or Address..." class="w-full bg-surface-container-low border border-outline-variant rounded-lg pl-xl pr-md py-sm text-body-md focus:border-primary focus:ring-1 focus:ring-primary" onkeypress="handleSearchKeyPress(event)">
+                        </div>
+                        <!-- Dropdowns -->
+                        <div class="flex flex-wrap gap-sm items-center">
+                            <select id="filter-state" onchange="onStateFilterChange()" class="bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-body-md focus:border-primary focus:ring-1 focus:ring-primary">
+                                <option value="">All States</option>
+                            </select>
+                            <select id="filter-district" onchange="onDistrictFilterChange()" disabled class="bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-body-md focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-50">
+                                <option value="">All Districts</option>
+                            </select>
+                            <button class="bg-primary hover:bg-primary/90 text-white font-bold px-lg py-sm rounded-lg transition-colors flex items-center gap-xs text-[14px]" id="btn-search" onclick="fetchCentres(1)">
+                                <span class="material-symbols-outlined text-[18px]">filter_list</span> Apply
+                            </button>
+                            <button class="text-on-surface-variant hover:bg-surface-container px-md py-sm rounded-lg font-bold transition-colors text-[14px]" id="btn-clear-filters" onclick="clearBrowserFilters()">
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Data Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse" id="table-centres">
+                            <thead>
+                                <tr class="text-left border-b border-outline-variant text-on-surface-variant">
+                                    <th class="pb-md font-label-md">AI CODE</th>
+                                    <th class="pb-md font-label-md">NAME</th>
+                                    <th class="pb-md font-label-md">DISTRICT</th>
+                                    <th class="pb-md font-label-md">STATE</th>
+                                    <th class="pb-md font-label-md">VALIDITY</th>
+                                    <th class="pb-md font-label-md">ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="centres-tbody" class="divide-y divide-outline-variant/30 text-[13px]">
+                                <tr>
+                                    <td colspan="6" class="py-md text-center text-on-surface-variant">No criteria entered. Click Apply to search.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Table Footer / Pagination -->
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-md pt-lg border-t border-outline-variant text-body-sm">
+                        <div class="text-on-surface-variant">
+                            Showing <span id="pag-info-start" class="font-bold text-on-surface">0</span> to <span id="pag-info-end" class="font-bold text-on-surface">0</span> of <span id="pag-info-total" class="font-bold text-on-surface">0</span> centres
+                        </div>
+                        <div class="flex items-center gap-sm">
+                            <button class="p-2 border border-outline-variant rounded-lg hover:bg-surface-container disabled:opacity-50 disabled:hover:bg-transparent" id="btn-pag-prev" onclick="changePage(-1)" disabled>
+                                <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+                            </button>
+                            <div class="flex items-center gap-sm" id="pagination-pages-container">
+                                <!-- Dynamic page buttons -->
+                            </div>
+                            <button class="p-2 border border-outline-variant rounded-lg hover:bg-surface-container disabled:opacity-50 disabled:hover:bg-transparent" id="btn-pag-next" onclick="changePage(1)" disabled>
+                                <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 3: CONTROL PANEL -->
+            <section id="view-control" class="view-section hidden space-y-lg">
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-lg">
+                    <!-- Scraping Configuration Card -->
+                    <div class="card-elevation-1 rounded-xl p-lg flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-md">
+                                <h3 class="font-headline-md text-on-surface">Trigger Scraping Task</h3>
+                                <span class="material-symbols-outlined text-primary-container bg-primary-container/10 p-2 rounded-lg">play_circle</span>
+                            </div>
+                            <p class="text-body-sm text-on-surface-variant mb-lg">Initiate a new scraper job with fine-grained scoping</p>
+                            
+                            <div class="space-y-md">
+                                <div class="flex flex-col gap-xs">
+                                    <label for="scrape-state" class="font-label-md text-on-surface-variant">Scope State</label>
+                                    <select id="scrape-state" class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-body-md focus:border-primary focus:ring-1 focus:ring-primary">
+                                        <option value="">Full India Scrape (All States)</option>
+                                    </select>
+                                    <p class="text-[11px] text-on-surface-variant">Select a single state to scrape or leave blank to scrape all states in order.</p>
+                                </div>
+                                <div class="flex flex-col gap-xs">
+                                    <label for="scrape-district" class="font-label-md text-on-surface-variant">Scope District</label>
+                                    <select id="scrape-district" disabled class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-body-md focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-50">
+                                        <option value="">Select a state first</option>
+                                    </select>
+                                    <p class="text-[11px] text-on-surface-variant">Select a single district to scrape or leave blank to scrape all districts of the selected state.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-xl">
+                            <button class="w-full py-md bg-primary hover:bg-primary/90 text-white rounded-lg font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-sm" id="btn-start-scrape" onclick="startScrapeRun()">
+                                <span class="material-symbols-outlined">play_arrow</span> Start Scrape Job
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Scraper Progress Panel -->
+                    <div class="card-elevation-1 rounded-xl p-lg flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-md">
+                                <h3 class="font-headline-md text-on-surface">Job Run Status</h3>
+                                <span class="material-symbols-outlined text-primary-container bg-primary-container/10 p-2 rounded-lg">analytics</span>
+                            </div>
+                            <p class="text-body-sm text-on-surface-variant mb-lg">Live scraping progress and thread metrics</p>
+                            
+                            <div class="space-y-md">
+                                <!-- Progress Header -->
+                                <div class="flex justify-between items-center">
+                                    <span id="run-progress-label" class="font-label-md font-bold text-on-surface">System Idle</span>
+                                    <span id="run-progress-percent" class="font-mono-code font-bold text-primary text-[14px]">0%</span>
+                                </div>
+                                <!-- Progress Bar Background -->
+                                <div class="w-full bg-surface-container h-3 rounded-full overflow-hidden">
+                                    <div class="bg-primary h-full rounded-full transition-all duration-500" id="run-progress-bar" style="width: 0%;"></div>
+                                </div>
+                                
+                                <!-- Progress Details -->
+                                <div class="console-recessed p-md rounded-lg font-mono-code text-mono-code text-[12px] space-y-sm" id="run-progress-details">
+                                    <div class="flex justify-between border-b border-outline-variant/30 pb-xs">
+                                        <span class="text-on-surface-variant">CURRENT STATE:</span>
+                                        <span class="text-on-surface font-bold" id="progress-state">—</span>
+                                    </div>
+                                    <div class="flex justify-between border-b border-outline-variant/30 pb-xs">
+                                        <span class="text-on-surface-variant">CURRENT DISTRICT:</span>
+                                        <span class="text-on-surface font-bold" id="progress-district">—</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-on-surface-variant">DETAILS:</span>
+                                        <span class="text-on-surface font-bold" id="progress-status">Idle</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Database Management Card -->
+                <div class="card-elevation-1 rounded-xl p-lg border border-error/20 bg-error/5">
+                    <div class="flex justify-between items-center mb-md">
+                        <h3 class="font-headline-md text-error flex items-center gap-xs">
+                            <span class="material-symbols-outlined">database</span> Database Management
+                        </h3>
+                    </div>
+                    <p class="text-body-sm text-on-surface-variant mb-md">Reset collected data and reports to start completely fresh</p>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+                        <p class="text-body-sm text-error flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-[18px]">warning</span>
+                            <span>Warning: This will permanently delete all scraped study centres, run history, and generated reports.</span>
+                        </p>
+                        <button class="bg-error hover:bg-error/90 text-white font-bold px-lg py-md rounded-lg transition-colors flex items-center gap-xs shrink-0" id="btn-clear-db" onclick="clearSystemData()">
+                            <span class="material-symbols-outlined">delete_forever</span> Clear System Database
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Live Log Console -->
+                <div class="card-elevation-1 rounded-xl p-lg flex flex-col space-y-md">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md pb-md border-b border-outline-variant">
+                        <div>
+                            <h3 class="font-headline-md text-on-surface">Agent Live Console Logs</h3>
+                            <p class="text-body-sm text-on-surface-variant">Standard stdout and stderr from background agents</p>
+                        </div>
+                        <div class="flex items-center gap-md">
+                            <label class="flex items-center gap-xs cursor-pointer select-none text-body-sm text-on-surface-variant">
+                                <input type="checkbox" id="console-autoscroll" checked class="rounded border-outline-variant text-primary focus:ring-primary">
+                                <span>Auto-scroll</span>
+                            </label>
+                            <button class="text-primary hover:bg-primary/5 px-md py-sm rounded-lg font-bold transition-colors flex items-center gap-xs text-body-sm" onclick="clearConsole()">
+                                <span class="material-symbols-outlined text-[18px]">delete_sweep</span> Clear Console
+                            </button>
+                        </div>
+                    </div>
+                    <div class="console-recessed p-md rounded-lg">
+                        <pre class="font-mono-code text-mono-code text-[12px] h-[300px] overflow-y-auto leading-relaxed text-slate-800" id="console-output-text">Console loading... Logs will appear here once scraper starts.</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 4: REPORTS -->
+            <section id="view-reports" class="view-section hidden space-y-lg">
+                <div class="card-elevation-1 rounded-xl p-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+                    <div>
+                        <h3 class="font-headline-md text-on-surface">Generate & Download Reports</h3>
+                        <p class="text-body-sm text-on-surface-variant">Export your study centre database into finalized presentation formats.</p>
+                    </div>
+                    <button class="bg-primary hover:bg-primary/90 text-white font-bold px-lg py-md rounded-lg transition-colors flex items-center gap-xs shadow-sm text-[14px]" id="btn-generate-reports" onclick="generateReports()">
+                        <span class="material-symbols-outlined">sync</span> Regenerate All Reports
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+                    <!-- DOCX -->
+                    <div class="card-elevation-1 rounded-xl p-lg flex flex-col justify-between h-[240px]" id="report-card-docx">
+                        <div class="flex justify-between items-start">
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">description</span>
+                            </div>
+                            <h4 class="font-headline-md text-[16px] font-bold text-on-surface text-right">Word Directory</h4>
+                        </div>
+                        <div>
+                            <span class="text-body-md font-mono-code font-bold block overflow-hidden text-ellipsis whitespace-nowrap">study_centres_india.docx</span>
+                            <div class="flex justify-between text-body-sm text-on-surface-variant mt-sm">
+                                <span id="report-size-docx">Size: Loading...</span>
+                                <span id="report-time-docx">Updated: Loading...</span>
+                            </div>
+                        </div>
+                        <div class="pt-md border-t border-outline-variant/30">
+                            <a href="/api/reports/download/docx" class="w-full py-sm border border-outline-variant hover:bg-surface-container text-on-surface-variant rounded-lg font-bold transition-all flex items-center justify-center gap-xs text-[13px]" id="download-link-docx" title="Download DOCX">
+                                <span class="material-symbols-outlined text-[18px]">download</span> Download DOCX
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- XLSX -->
+                    <div class="card-elevation-1 rounded-xl p-lg flex flex-col justify-between h-[240px]" id="report-card-xlsx">
+                        <div class="flex justify-between items-start">
+                            <div class="w-12 h-12 rounded-xl bg-green-500/10 text-green-600 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">table_chart</span>
+                            </div>
+                            <h4 class="font-headline-md text-[16px] font-bold text-on-surface text-right">Excel Spreadsheet</h4>
+                        </div>
+                        <div>
+                            <span class="text-body-md font-mono-code font-bold block overflow-hidden text-ellipsis whitespace-nowrap">study_centres_india.xlsx</span>
+                            <div class="flex justify-between text-body-sm text-on-surface-variant mt-sm">
+                                <span id="report-size-xlsx">Size: Loading...</span>
+                                <span id="report-time-xlsx">Updated: Loading...</span>
+                            </div>
+                        </div>
+                        <div class="pt-md border-t border-outline-variant/30">
+                            <a href="/api/reports/download/xlsx" class="w-full py-sm border border-outline-variant hover:bg-surface-container text-on-surface-variant rounded-lg font-bold transition-all flex items-center justify-center gap-xs text-[13px]" id="download-link-xlsx" title="Download XLSX">
+                                <span class="material-symbols-outlined text-[18px]">download</span> Download XLSX
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- PDF -->
+                    <div class="card-elevation-1 rounded-xl p-lg flex flex-col justify-between h-[240px]" id="report-card-pdf">
+                        <div class="flex justify-between items-start">
+                            <div class="w-12 h-12 rounded-xl bg-red-500/10 text-red-600 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">picture_as_pdf</span>
+                            </div>
+                            <h4 class="font-headline-md text-[16px] font-bold text-on-surface text-right">PDF Directory</h4>
+                        </div>
+                        <div>
+                            <span class="text-body-md font-mono-code font-bold block overflow-hidden text-ellipsis whitespace-nowrap">study_centres_india.pdf</span>
+                            <div class="flex justify-between text-body-sm text-on-surface-variant mt-sm">
+                                <span id="report-size-pdf">Size: Loading...</span>
+                                <span id="report-time-pdf">Updated: Loading...</span>
+                            </div>
+                        </div>
+                        <div class="pt-md border-t border-outline-variant/30">
+                            <a href="/api/reports/download/pdf" class="w-full py-sm border border-outline-variant hover:bg-surface-container text-on-surface-variant rounded-lg font-bold transition-all flex items-center justify-center gap-xs text-[13px]" id="download-link-pdf" title="Download PDF">
+                                <span class="material-symbols-outlined text-[18px]">download</span> Download PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation (Mobile Only) -->
+    <nav class="lg:hidden fixed bottom-0 left-0 w-full bg-surface border-t border-outline-variant flex justify-around items-center px-md pb-4 pt-2 shadow-lg z-40">
+        <a href="#dashboard" class="nav-item flex flex-col items-center justify-center text-on-secondary-fixed-variant hover:bg-surface-container p-2 rounded-xl transition-all active" id="mobile-nav-dashboard">
+            <span class="material-symbols-outlined">home</span>
+            <span class="font-label-md text-[10px]">Home</span>
+        </a>
+        <a href="#browser" class="nav-item flex flex-col items-center justify-center text-on-secondary-fixed-variant hover:bg-surface-container p-2 rounded-xl transition-all" id="mobile-nav-browser">
+            <span class="material-symbols-outlined">database</span>
+            <span class="font-label-md text-[10px]">Browse</span>
+        </a>
+        <a href="#control" class="nav-item flex flex-col items-center justify-center text-on-secondary-fixed-variant hover:bg-surface-container p-2 rounded-xl transition-all" id="mobile-nav-control">
+            <span class="material-symbols-outlined">settings_input_component</span>
+            <span class="font-label-md text-[10px]">Control</span>
+        </a>
+        <a href="#reports" class="nav-item flex flex-col items-center justify-center text-on-secondary-fixed-variant hover:bg-surface-container p-2 rounded-xl transition-all" id="mobile-nav-reports">
+            <span class="material-symbols-outlined">assessment</span>
+            <span class="font-label-md text-[10px]">Reports</span>
+        </a>
+    </nav>
+
+    <!-- Details Modal -->
+    <div class="modal-backdrop hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-md" id="centre-detail-modal" onclick="if(event.target === this) closeModal()">
+        <div class="card-elevation-1 rounded-xl w-full max-w-lg overflow-hidden flex flex-col shadow-2xl">
+            <div class="bg-primary px-lg py-md flex justify-between items-center">
+                <h3 class="font-headline-md text-white">Study Centre Details</h3>
+                <button class="text-white/80 hover:text-white rounded-full hover:bg-white/10 p-1" onclick="closeModal()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="p-lg space-y-md overflow-y-auto max-h-[70vh]" id="centre-detail-modal-body">
+                <!-- Dynamic Content -->
+            </div>
+            <div class="px-lg py-md border-t border-outline-variant bg-surface-container-low flex justify-end">
+                <button class="bg-primary hover:bg-primary/95 text-white font-bold px-lg py-sm rounded-lg transition-all" onclick="closeModal()">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Interaction Scripts -->
+    <script>
+        function toggleDrawer() {
+            const drawer = document.getElementById('navigation-drawer');
+            const overlay = document.getElementById('mobile-drawer-overlay');
+            drawer.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Card Micro-interactions (translation and borders)
+        document.querySelectorAll('.card-elevation-1').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-2px)';
+                card.style.transition = 'transform 0.2s ease-out';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+    
+    <!-- Primary SPA Application Logic -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

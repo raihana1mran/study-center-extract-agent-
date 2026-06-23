@@ -1,0 +1,30 @@
+# Core
+playwright==1.44.0
+beautifulsoup4==4.12.3
+lxml==5.2.2
+
+# AI / OpenRouter
+openai==1.30.5
+
+# Database (SQLite is built-in, no driver needed)
+sqlalchemy==2.0.30
+alembic==1.13.1
+
+# Reports
+python-docx==1.1.2
+openpyxl==3.1.2
+fpdf2==2.7.9
+reportlab==4.2.0
+
+# Scheduler
+APScheduler==3.10.4
+
+# Web Dashboard
+flask==3.0.3
+
+# Utilities
+python-dotenv==1.0.1
+loguru==0.7.2
+tenacity==8.3.0
+colorama==0.4.6
+tqdm==4.66.4
