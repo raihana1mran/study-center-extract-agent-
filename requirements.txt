@@ -28,3 +28,15 @@ loguru==0.7.2
 tenacity==8.3.0
 colorama==0.4.6
 tqdm==4.66.4
+
+# Video Generator Agent
+moviepy==1.0.3
+elevenlabs==1.10.0
+gTTS==2.5.1
+pillow==10.3.0
+
+# Production Hosting
+gunicorn==22.0.0
+psycopg2-binary==2.9.9
+
+

@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: study-center-extract-agent
+    env: python
+    buildCommand: "pip install -r requirements.txt && playwright install chromium"
+    startCommand: "gunicorn app:app"
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: HEADLESS
+        value: "true"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nios-db
+          property: connectionString
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: PYTHON_VERSION
+        value: 3.12.3
+
+databases:
+  - name: nios-db
+    plan: free

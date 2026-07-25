@@ -164,6 +164,12 @@ class BrowserAgent:
                     if (!sel) return false;
                     const options = Array.from(sel.options).filter(o => o.value !== '');
                     if (options.length === 0) return false;
+                    
+                    // Wait for jQuery AJAX requests to complete
+                    if (typeof jQuery !== 'undefined' && jQuery.active > 0) {{
+                        return false;
+                    }}
+                    
                     return options.every(o => o.value.startsWith('{state_code}'));
                 }}""",
                 timeout=timeout,

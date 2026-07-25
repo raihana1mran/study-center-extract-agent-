@@ -8,7 +8,7 @@ from pathlib import Path
 from datetime import datetime
 from flask import Flask, jsonify, request, send_file, render_template
 
-from config import INDIAN_STATES, REPORTS_DIR, DOCX_PATH, XLSX_PATH, PDF_PATH
+from config import INDIAN_STATES, REPORTS_DIR, DOCX_PATH, XLSX_PATH, PDF_PATH, JSON_PATH
 from db.database import (
     get_session, StudyCentre, ScrapeRun, CheckpointState,
     get_dashboard_stats, get_state_summary, get_district_summary,
@@ -17,6 +17,22 @@ from db.database import (
 from main import run_pipeline, _generate_reports
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
+
+# Initialize DB tables and cleanup crashed runs on server start
+init_db()
+try:
+    from datetime import datetime
+    with get_session() as session:
+        leftovers = session.query(ScrapeRun).filter_by(status="running").all()
+        for run in leftovers:
+            run.status = "failed"
+            run.completed_at = datetime.utcnow()
+        session.commit()
+        if leftovers:
+            print(f"Cleaned up {len(leftovers)} crashed/leftover runs from database.")
+except Exception as e:
+    print(f"Error cleaning up leftover runs: {e}")
+
 
 # Thread control for scraping
 scrape_lock = threading.Lock()
@@ -256,7 +272,8 @@ def download_report(format_type):
     formats = {
         "docx": DOCX_PATH,
         "xlsx": XLSX_PATH,
-        "pdf": PDF_PATH
+        "pdf": PDF_PATH,
+        "json": JSON_PATH
     }
     
     if format_type not in formats:
@@ -275,6 +292,8 @@ def generate_reports_api():
         return jsonify({"status": "success", "message": "Reports generated successfully."})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
 
 @app.route('/api/logs')
 def get_live_logs():
@@ -299,17 +318,4 @@ def get_live_logs():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    init_db()
-    try:
-        from datetime import datetime
-        with get_session() as session:
-            leftovers = session.query(ScrapeRun).filter_by(status="running").all()
-            for run in leftovers:
-                run.status = "failed"
-                run.completed_at = datetime.utcnow()
-            session.commit()
-            if leftovers:
-                print(f"Cleaned up {len(leftovers)} crashed/leftover runs from database.")
-    except Exception as e:
-        print(f"Error cleaning up leftover runs: {e}")
     app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)

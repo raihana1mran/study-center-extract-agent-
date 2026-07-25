@@ -39,6 +39,8 @@ DATABASE_URL = os.getenv(
     "DATABASE_URL",
     f"sqlite:///{DB_PATH}"
 )
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 # ─── NIOS URLs ──────────────────────────────────────────────────
 NIOS_BASE_URL = os.getenv("NIOS_BASE_URL", "https://sdmis.nios.ac.in")
@@ -118,3 +120,4 @@ SCREENSHOTS_DIR.mkdir(exist_ok=True)
 DOCX_PATH = REPORTS_DIR / "study_centres_india.docx"
 XLSX_PATH = REPORTS_DIR / "study_centres_india.xlsx"
 PDF_PATH  = REPORTS_DIR / "study_centres_india.pdf"
+JSON_PATH = REPORTS_DIR / "study_centres_india.json"

@@ -1,5 +1,5 @@
 """
-agents/report_agent.py — Generates DOCX, XLSX, and PDF reports.
+agents/report_agent.py — Generates DOCX, XLSX, PDF, and JSON reports.
 
 Document structure:
   STATE
@@ -15,13 +15,14 @@ Primary report generation is deterministic (python-docx, openpyxl, fpdf2).
 from __future__ import annotations
 
 import io
+import json as json_module
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any
 
 from config import (
-    DOCX_PATH, XLSX_PATH, PDF_PATH,
+    DOCX_PATH, XLSX_PATH, PDF_PATH, JSON_PATH,
     MODELS, OPENROUTER_API_KEY, OPENROUTER_BASE_URL,
 )
 from utils.logger import log
@@ -49,8 +50,8 @@ class ReportAgent:
 
     def generate_all(self, centres: List[Any]) -> Dict[str, Path]:
         """
-        Generate DOCX, XLSX, and PDF from a list of StudyCentre ORM objects.
-        Returns: dict with keys 'docx', 'xlsx', 'pdf' pointing to output paths.
+        Generate DOCX, XLSX, PDF, and JSON from a list of StudyCentre ORM objects.
+        Returns: dict with keys 'docx', 'xlsx', 'pdf', 'json' pointing to output paths.
         """
         log.info(f"Generating reports for {len(centres)} study centres...")
 
@@ -78,6 +79,13 @@ class ReportAgent:
             log.info(f"  ✓ PDF:  {PDF_PATH}")
         except Exception as e:
             log.error(f"  ✗ PDF generation failed: {e}")
+
+        try:
+            self._generate_json(grouped, centres)
+            results["json"] = JSON_PATH
+            log.info(f"  ✓ JSON: {JSON_PATH}")
+        except Exception as e:
+            log.error(f"  ✗ JSON generation failed: {e}")
 
         return results
 
@@ -424,6 +432,73 @@ class ReportAgent:
             pdf.ln(3)
 
         pdf.output(str(PDF_PATH))
+
+    # ── JSON Report ────────────────────────────────────────────
+
+    def _generate_json(self, grouped: Dict, all_centres: List) -> None:
+        """
+        Generate a structured JSON file following the hierarchy:
+        STATE -> DISTRICT -> [centres]
+
+        Output format:
+        {
+          "metadata": { ... },
+          "states": [
+            {
+              "state": "...",
+              "total_centres": N,
+              "districts": [
+                {
+                  "district": "...",
+                  "centres": [
+                    { "ai_code": ..., "name": ..., "address": ... }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+        """
+        output = {
+            "metadata": {
+                "title": "NIOS Academic Study Centre Directory - India",
+                "category": "Academic",
+                "source": "sdmis.nios.ac.in",
+                "generated_at": datetime.now().isoformat(),
+                "total_states": len(grouped),
+                "total_centres": len(all_centres),
+            },
+            "states": []
+        }
+
+        for state, districts in sorted(grouped.items()):
+            state_obj = {
+                "state": state,
+                "total_centres": sum(len(v) for v in districts.values()),
+                "total_districts": len(districts),
+                "districts": []
+            }
+
+            for district, centres_list in sorted(districts.items()):
+                district_obj = {
+                    "district": district,
+                    "total_centres": len(centres_list),
+                    "centres": []
+                }
+
+                for centre in sorted(centres_list, key=lambda x: x.ai_code):
+                    district_obj["centres"].append({
+                        "ai_code": centre.ai_code or "",
+                        "name": centre.name or "",
+                        "address": centre.address or "",
+                    })
+
+                state_obj["districts"].append(district_obj)
+
+            output["states"].append(state_obj)
+
+        with open(str(JSON_PATH), "w", encoding="utf-8") as f:
+            json_module.dump(output, f, ensure_ascii=False, indent=2)
 
     # ── AI Executive Summary ───────────────────────────────────
 
